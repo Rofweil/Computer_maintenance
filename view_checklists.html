@@ -28,7 +28,7 @@ button { padding:10px 18px; border:none; border-radius:6px; cursor:pointer; back
 .btn-back { background:#6c757d; }
 
 table { width:100%; border-collapse:collapse; }
-th, td { padding:12px; border-bottom:1px solid var(--border); }
+th, td { padding:12px; border-bottom:1px solid var(--border); text-align:left; }
 th { background:#f0f4ff; }
 tr:hover { background:#f9fbff; }
 .empty { text-align:center; padding:30px; color:#777; }
@@ -48,6 +48,7 @@ tr:hover { background:#f9fbff; }
 <script src="https://cdn.sheetjs.com/xlsx-0.19.2/package/dist/xlsx.full.min.js"></script>
 <!-- jsPDF for PDF -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
 <!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
@@ -60,16 +61,12 @@ tr:hover { background:#f9fbff; }
 
 <div class="top-bar">
     <input type="search" id="searchInput" placeholder="Search technician / asset">
-
-    <!-- Date Range -->
     <div>
         <label>From: <input type="date" id="fromDate"></label>
         <label>To: <input type="date" id="toDate"></label>
     </div>
-
     <button id="exportExcelBtn">Export Excel</button>
     <button id="exportPdfBtn">Export PDF</button>
-
     <button class="btn-back" onclick="location.href='maintenance_form.html'">Back to Form</button>
 </div>
 
@@ -207,7 +204,7 @@ document.getElementById("searchInput").addEventListener("input", e=>{
                                d.department?.toLowerCase().includes(val)));
 });
 
-// ===== Date Range Filter =====
+// Date Filter
 function getFilteredByDate(){
     const from=document.getElementById("fromDate").value;
     const to=document.getElementById("toDate").value;
@@ -215,38 +212,50 @@ function getFilteredByDate(){
     return data.filter(item=>item.date>=from && item.date<=to);
 }
 
-// ===== Export Excel =====
+// ===== Export Excel (✅/❌ per checklist) =====
 document.getElementById("exportExcelBtn").addEventListener("click", ()=>{
     const filtered=getFilteredByDate();
     if(!filtered.length){ alert("No data in this date range."); return; }
-    const ws_data=filtered.map(item=>({
-        Date:item.date, Technician:item.technician, Department:item.department,
-        Asset:item.asset, Remarks:item.remarks, Checklist:item.checklist.join(", ")
-    }));
+
+    const ws_data = filtered.map(item=>{
+        const obj={Date:item.date, Technician:item.technician, Department:item.department, Asset:item.asset, Remarks:item.remarks};
+        checklistItems.forEach(name=>obj[name]=item.checklist?.includes(name)?"✅":"❌");
+        return obj;
+    });
+
     const wb=XLSX.utils.book_new();
     const ws=XLSX.utils.json_to_sheet(ws_data);
     XLSX.utils.book_append_sheet(wb,ws,"Checklists");
     XLSX.writeFile(wb,`Maintenance_Report_${document.getElementById("fromDate").value}_${document.getElementById("toDate").value}.xlsx`);
 });
 
-// ===== Export PDF =====
+// ===== Export PDF (✅/❌ per checklist, wrapped nicely) =====
 document.getElementById("exportPdfBtn").addEventListener("click", ()=>{
     const filtered=getFilteredByDate();
     if(!filtered.length){ alert("No data in this date range."); return; }
-    const doc=new jspdf.jsPDF();
+
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF('p','pt');
     doc.setFontSize(14);
-    doc.text("Maintenance Report",14,20);
-    let y=30;
-    filtered.forEach(item=>{
-        doc.setFontSize(12);
-        doc.text(`Date: ${item.date}`,14,y); y+=6;
-        doc.text(`Technician: ${item.technician}`,14,y); y+=6;
-        doc.text(`Department: ${item.department}`,14,y); y+=6;
-        doc.text(`Asset: ${item.asset}`,14,y); y+=6;
-        doc.text(`Remarks: ${item.remarks||"-"}`,14,y); y+=6;
-        doc.text(`Checklist: ${item.checklist.join(", ")}`,14,y); y+=10;
-        if(y>270){ doc.addPage(); y=20; }
+    doc.text("Maintenance Report", 40, 40);
+
+    const head = ["Date","Technician","Department","Asset","Remarks", ...checklistItems];
+    const body = filtered.map(item=>{
+        const row=[item.date,item.technician,item.department,item.asset,item.remarks||"-"];
+        checklistItems.forEach(name=>row.push(item.checklist?.includes(name)?"✅":"❌"));
+        return row;
     });
+
+    doc.autoTable({
+        head: [head],
+        body: body,
+        startY:60,
+        styles:{ fontSize:10, cellPadding:3 },
+        headStyles:{ fillColor:[47,128,237], textColor:255 },
+        margin:{ left:20, right:20 },
+        theme:'grid'
+    });
+
     doc.save(`Maintenance_Report_${document.getElementById("fromDate").value}_${document.getElementById("toDate").value}.pdf`);
 });
 
