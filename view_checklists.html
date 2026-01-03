@@ -133,7 +133,7 @@ function fetchData() {
     db.ref('checklists').once('value', snapshot => {
         const obj = snapshot.val();
         data = obj ? Object.entries(obj).map(([key, value]) => {
-            // ✅ Fix: checklist is already array in your JSON
+            // ✅ Correctly handle array checklist
             const checklistArray = Array.isArray(value.checklist) ? value.checklist : [];
             return { key, ...value, checklist: checklistArray };
         }) : [];
@@ -219,7 +219,7 @@ document.getElementById("exportExcelBtn").addEventListener("click", ()=>{
     XLSX.writeFile(wb, `Maintenance_Report_${document.getElementById("fromDate").value}_${document.getElementById("toDate").value}.xlsx`);
 });
 
-// PDF export (kept same logic)
+// PDF export
 document.getElementById("exportPdfBtn").addEventListener("click", ()=>{
     const filtered = getFilteredByDate();
     if(!filtered.length){ alert("No data in this date range."); return; }
