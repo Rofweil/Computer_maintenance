@@ -129,13 +129,12 @@ let checklistItems = [
     "Network connectivity tested","Firewall enabled","Backup verified","User password policy checked"
 ];
 
+// ✅ Fetch Firebase data
 function fetchData() {
     db.ref('checklists').once('value', snapshot => {
         const obj = snapshot.val();
         data = obj ? Object.entries(obj).map(([key, value]) => {
-            // ✅ Correctly handle array checklist
-            const checklistArray = Array.isArray(value.checklist) ? value.checklist : [];
-            return { key, ...value, checklist: checklistArray };
+            return { key, ...value, checklist: Array.isArray(value.checklist) ? value.checklist : [] };
         }) : [];
         renderTable(data);
     });
@@ -168,20 +167,20 @@ function viewItem(index) {
     document.getElementById("mDept").textContent = item.department;
     document.getElementById("mAsset").textContent = item.asset;
     document.getElementById("mDate").textContent = item.date;
-    document.getElementById("mRemarks").textContent = item.remarks||"None";
+    document.getElementById("mRemarks").textContent = item.remarks || "None";
 
     const list = document.getElementById("mChecklist");
     list.innerHTML = "";
     checklistItems.forEach(name => {
-        const checked = item.checklist?.includes(name);
         const div = document.createElement("div");
         div.className = "check-item";
-        div.innerHTML = checked ? `✅ ${name}` : `❌ ${name}`;
+        div.textContent = item.checklist.includes(name) ? `✅ ${name}` : `❌ ${name}`;
         list.appendChild(div);
     });
 
     modal.style.display = "flex";
 }
+
 function closeModal(){ modal.style.display="none"; }
 
 function deleteItem(index){
@@ -210,7 +209,7 @@ document.getElementById("exportExcelBtn").addEventListener("click", ()=>{
     if(!filtered.length){ alert("No data in this date range."); return; }
     const ws_data = filtered.map(item=>{
         const obj = { Date:item.date, Technician:item.technician, Department:item.department, Asset:item.asset, Remarks:item.remarks };
-        checklistItems.forEach(name => obj[name] = item.checklist?.includes(name)?"✅":"❌");
+        checklistItems.forEach(name => obj[name] = item.checklist.includes(name) ? "✅" : "❌");
         return obj;
     });
     const wb = XLSX.utils.book_new();
@@ -231,43 +230,36 @@ document.getElementById("exportPdfBtn").addEventListener("click", ()=>{
     const pageHeight = doc.internal.pageSize.height;
 
     filtered.forEach(item => {
-        doc.setFontSize(16);
-        doc.setTextColor(47,128,237);
+        doc.setFontSize(16); doc.setTextColor(47,128,237);
         doc.text("Checklist Details", margin, y); y+=25;
-
         doc.setFontSize(12); doc.setTextColor(0,0,0);
         doc.text(`Technician: ${item.technician || "-"}`, margin, y); y+=15;
         doc.text(`Department: ${item.department || "-"}`, margin, y); y+=15;
         doc.text(`Asset Tag: ${item.asset || "-"}`, margin, y); y+=15;
         doc.text(`Date: ${item.date || "-"}`, margin, y); y+=20;
 
-        doc.setTextColor(47,128,237);
-        doc.text("Checklist", margin, y); y+=15;
-
-        const boxWidth=200, boxHeight=18, gapX=10, gapY=10;
+        doc.setTextColor(47,128,237); doc.text("Checklist", margin, y); y+=15;
         let x = margin, startY = y;
+        const boxWidth=200, boxHeight=18, gapX=10, gapY=10;
 
         checklistItems.forEach(name=>{
-            const hasDone = item.checklist?.includes(name);
+            const hasDone = item.checklist.includes(name);
             doc.setDrawColor(0);
-            doc.setFillColor(hasDone ? 0,180,0 : 220,0,0);
+            doc.setFillColor(hasDone ? 0 : 220, hasDone ? 180 : 0, 0); // Corrected comma usage
             doc.rect(x, startY, boxWidth, boxHeight, 'FD');
             doc.setTextColor(255,255,255);
             doc.text((hasDone?"✅ ":"❌ ")+name, x+4, startY+13);
-
             x += boxWidth+gapX;
             if(x+boxWidth > pageWidth-margin){ x=margin; startY+=boxHeight+gapY; }
             if(startY+boxHeight+40>pageHeight){ doc.addPage(); startY=40; x=margin; }
         });
         y = startY+boxHeight+25;
 
-        doc.setTextColor(47,128,237);
-        doc.text("Remarks", margin, y); y+=15;
+        doc.setTextColor(47,128,237); doc.text("Remarks", margin, y); y+=15;
         doc.setTextColor(0,0,0);
         const splitRemarks = doc.splitTextToSize(item.remarks||"-", pageWidth-margin*2);
         doc.text(splitRemarks, margin, y);
         y += splitRemarks.length*12+20;
-
         if(y>pageHeight-60){ doc.addPage(); y=40; }
     });
 
