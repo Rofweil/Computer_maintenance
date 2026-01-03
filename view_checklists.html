@@ -229,9 +229,9 @@ document.getElementById("exportExcelBtn").addEventListener("click", ()=>{
     XLSX.writeFile(wb,`Maintenance_Report_${document.getElementById("fromDate").value}_${document.getElementById("toDate").value}.xlsx`);
 });
 
-// ===== Export PDF (✅/❌ per checklist, wrapped nicely) =====
+// ===== Export PDF (colored ✅/❌) =====
 document.getElementById("exportPdfBtn").addEventListener("click", ()=>{
-    const filtered=getFilteredByDate();
+    const filtered = getFilteredByDate();
     if(!filtered.length){ alert("No data in this date range."); return; }
 
     const { jsPDF } = window.jspdf;
@@ -241,7 +241,7 @@ document.getElementById("exportPdfBtn").addEventListener("click", ()=>{
 
     const head = ["Date","Technician","Department","Asset","Remarks", ...checklistItems];
     const body = filtered.map(item=>{
-        const row=[item.date,item.technician,item.department,item.asset,item.remarks||"-"];
+        const row = [item.date,item.technician,item.department,item.asset,item.remarks||"-"];
         checklistItems.forEach(name=>row.push(item.checklist?.includes(name)?"✅":"❌"));
         return row;
     });
@@ -249,11 +249,26 @@ document.getElementById("exportPdfBtn").addEventListener("click", ()=>{
     doc.autoTable({
         head: [head],
         body: body,
-        startY:60,
-        styles:{ fontSize:10, cellPadding:3 },
-        headStyles:{ fillColor:[47,128,237], textColor:255 },
-        margin:{ left:20, right:20 },
-        theme:'grid'
+        startY: 60,
+        styles: { fontSize: 9, cellPadding: 4, overflow: 'linebreak' },
+        headStyles: { fillColor: [47,128,237], textColor: 255, fontStyle:'bold' },
+        columnStyles: head.reduce((acc,col,i)=>{
+            acc[i]={cellWidth:i>4?40:'auto'}; // checklist columns narrow, main info auto
+            return acc;
+        }, {}),
+        didParseCell: function(data) {
+            if(data.row.section==='body'){
+                if(data.cell.text[0] === "✅"){
+                    data.cell.styles.textColor = [0,150,0]; // green
+                    data.cell.styles.fontStyle = 'bold';
+                } else if(data.cell.text[0] === "❌"){
+                    data.cell.styles.textColor = [200,0,0]; // red
+                    data.cell.styles.fontStyle = 'bold';
+                }
+            }
+        },
+        margin: { left: 20, right: 20 },
+        theme: 'grid'
     });
 
     doc.save(`Maintenance_Report_${document.getElementById("fromDate").value}_${document.getElementById("toDate").value}.pdf`);
@@ -264,3 +279,4 @@ fetchData();
 
 </body>
 </html>
+
