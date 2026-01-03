@@ -219,52 +219,68 @@ document.getElementById("exportExcelBtn").addEventListener("click", ()=>{
 });
 
 // PDF export
-document.getElementById("exportPdfBtn").addEventListener("click", ()=>{
+document.getElementById("exportPdfBtn").addEventListener("click", () => {
     const filtered = getFilteredByDate();
-    if(!filtered.length){ alert("No data in this date range."); return; }
+    if (!filtered.length) { alert("No data in this date range."); return; }
 
     const { jsPDF } = window.jspdf;
-    const doc = new jsPDF('p','pt');
+    const doc = new jsPDF('p', 'pt');
     let y = 40, margin = 40;
     const pageWidth = doc.internal.pageSize.width;
     const pageHeight = doc.internal.pageSize.height;
 
     filtered.forEach(item => {
-        doc.setFontSize(16); doc.setTextColor(47,128,237);
-        doc.text("Checklist Details", margin, y); y+=25;
-        doc.setFontSize(12); doc.setTextColor(0,0,0);
-        doc.text(`Technician: ${item.technician || "-"}`, margin, y); y+=15;
-        doc.text(`Department: ${item.department || "-"}`, margin, y); y+=15;
-        doc.text(`Asset Tag: ${item.asset || "-"}`, margin, y); y+=15;
-        doc.text(`Date: ${item.date || "-"}`, margin, y); y+=20;
+        doc.setFontSize(16); 
+        doc.setTextColor(47, 128, 237);
+        doc.text("Checklist Details", margin, y); 
+        y += 25;
 
-        doc.setTextColor(47,128,237); doc.text("Checklist", margin, y); y+=15;
-        let x = margin, startY = y;
-        const boxWidth=200, boxHeight=18, gapX=10, gapY=10;
+        doc.setFontSize(12); 
+        doc.setTextColor(0, 0, 0);
+        doc.text(`Technician: ${item.technician || "-"}`, margin, y); y += 15;
+        doc.text(`Department: ${item.department || "-"}`, margin, y); y += 15;
+        doc.text(`Asset Tag: ${item.asset || "-"}`, margin, y); y += 15;
+        doc.text(`Date: ${item.date || "-"}`, margin, y); y += 20;
 
-        checklistItems.forEach(name=>{
-            const hasDone = item.checklist.includes(name);
-            doc.setDrawColor(0);
-            doc.setFillColor(hasDone ? 0 : 220, hasDone ? 180 : 0, 0); // Corrected comma usage
-            doc.rect(x, startY, boxWidth, boxHeight, 'FD');
-            doc.setTextColor(255,255,255);
-            doc.text((hasDone?"✅ ":"❌ ")+name, x+4, startY+13);
-            x += boxWidth+gapX;
-            if(x+boxWidth > pageWidth-margin){ x=margin; startY+=boxHeight+gapY; }
-            if(startY+boxHeight+40>pageHeight){ doc.addPage(); startY=40; x=margin; }
-        });
-        y = startY+boxHeight+25;
-
-        doc.setTextColor(47,128,237); doc.text("Remarks", margin, y); y+=15;
+        // Legend
+        doc.setFontSize(10);
         doc.setTextColor(0,0,0);
-        const splitRemarks = doc.splitTextToSize(item.remarks||"-", pageWidth-margin*2);
+        doc.text("Legend: Green = Done, Red = Not Done", margin, y); 
+        y += 15;
+
+        doc.setTextColor(47, 128, 237); 
+        doc.text("Checklist", margin, y); y += 15;
+
+        let x = margin, startY = y;
+        const boxWidth = 200, boxHeight = 18, gapX = 10, gapY = 10;
+
+        checklistItems.forEach(name => {
+            const done = item.checklist.includes(name);
+            doc.setDrawColor(0);
+            doc.setFillColor(done ? 0 : 220, done ? 180 : 0, 0); // Green or red
+            doc.rect(x, startY, boxWidth, boxHeight, 'FD');
+
+            doc.setFontSize(8); // smaller text to fit
+            doc.setTextColor(255, 255, 255);
+            doc.text(name, x + 2, startY + 12, { maxWidth: boxWidth - 4 }); // wrap text if needed
+
+            x += boxWidth + gapX;
+            if (x + boxWidth > pageWidth - margin) { x = margin; startY += boxHeight + gapY; }
+            if (startY + boxHeight + 40 > pageHeight) { doc.addPage(); startY = 40; x = margin; }
+        });
+        y = startY + boxHeight + 25;
+
+        doc.setTextColor(47, 128, 237); 
+        doc.text("Remarks", margin, y); y += 15;
+        doc.setTextColor(0,0,0);
+        const splitRemarks = doc.splitTextToSize(item.remarks || "-", pageWidth - margin * 2);
         doc.text(splitRemarks, margin, y);
-        y += splitRemarks.length*12+20;
-        if(y>pageHeight-60){ doc.addPage(); y=40; }
+        y += splitRemarks.length * 12 + 20;
+        if (y > pageHeight - 60) { doc.addPage(); y = 40; }
     });
 
-    const from=document.getElementById("fromDate").value;
-    const to=document.getElementById("toDate").value;
+    const from = document.getElementById("fromDate").value;
+    const to = document.getElementById("toDate").value;
     doc.save(`Maintenance_Report_${from}_${to}.pdf`);
 });
 
@@ -273,3 +289,4 @@ fetchData();
 
 </body>
 </html>
+
