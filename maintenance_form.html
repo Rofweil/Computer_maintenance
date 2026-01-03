@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Computer Maintenance Checklist</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+:root {
+    --primary: #2f80ed;
+    --secondary: #56ccf2;
+    --bg: #f5f7fa;
+    --card: #ffffff;
+    --text: #333;
+    --border: #e0e0e0;
+}
+
+* {
+    box-sizing: border-box;
+    font-family: "Segoe UI", Tahoma, Arial, sans-serif;
+}
+
+body {
+    margin: 0;
+    padding: 20px;
+    background: linear-gradient(135deg, var(--secondary), var(--primary));
+}
+
+.container {
+    max-width: 900px;
+    margin: auto;
+    background: var(--card);
+    border-radius: 12px;
+    padding: 30px;
+    box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+}
+
+h1 {
+    text-align: center;
+    color: var(--primary);
+    margin-bottom: 10px;
+}
+
+.subtitle {
+    text-align: center;
+    color: #666;
+    margin-bottom: 30px;
+}
+
+.section {
+    margin-bottom: 30px;
+}
+
+.section h2 {
+    border-left: 5px solid var(--primary);
+    padding-left: 12px;
+    color: var(--text);
+    margin-bottom: 15px;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 15px;
+}
+
+label {
+    font-size: 14px;
+    color: #555;
+}
+
+select {
+    width: 100%;
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    margin-top: 5px;
+    background-color: #fff;
+    font-size: 14px;
+}
+
+input[type="text"],
+input[type="date"],
+textarea {
+    width: 100%;
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    margin-top: 5px;
+}
+
+textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+.checklist {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 12px;
+}
+
+.check-item {
+    background: #f9fbff;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.check-item input {
+    transform: scale(1.2);
+}
+
+.actions {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 30px;
+}
+
+button {
+    background: var(--primary);
+    color: #fff;
+    border: none;
+    padding: 12px 22px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 15px;
+}
+
+button:hover {
+    background: #1c66d6;
+}
+
+.print-btn {
+    background: #6c757d;
+}
+
+.view-btn {
+    background: #27ae60;
+}
+
+.view-btn:hover {
+    background: #219150;
+}
+
+@media print {
+    body { background: none; }
+    .container { box-shadow: none; }
+    .actions { display: none; }
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+<h1>Computer Maintenance Checklist</h1>
+<p class="subtitle">Preventive & Routine Maintenance Form</p>
+
+<form id="maintenanceForm">
+
+<!-- BASIC INFO -->
+<div class="section">
+<h2>Basic Information</h2>
+<div class="info-grid">
+
+<div>
+<label>Technician Name</label>
+<select id="technician" required>
+<option value="">-- Select Technician --</option>
+<option value="Adly">Adly</option>
+<option value="Eizzat">Eizzat</option>
+</select>
+</div>
+
+<div>
+<label>Department / Location</label>
+<input type="text" id="department" required>
+</div>
+
+<div>
+<label>Computer Asset Tag</label>
+<input type="text" id="asset" required>
+</div>
+
+<div>
+<label>Date</label>
+<input type="date" id="date" required>
+</div>
+
+</div>
+</div>
+
+<!-- CHECKLIST -->
+<div class="section">
+<h2>Maintenance Checklist</h2>
+<div class="checklist">
+
+<label class="check-item"><input type="checkbox" value="Clean keyboard & mouse"> Clean keyboard & mouse</label>
+<label class="check-item"><input type="checkbox" value="Clean monitor screen"> Clean monitor screen</label>
+<label class="check-item"><input type="checkbox" value="Clean internal dust"> Clean internal dust</label>
+<label class="check-item"><input type="checkbox" value="Check cooling fans"> Check cooling fans</label>
+<label class="check-item"><input type="checkbox" value="Inspect cables & ports"> Inspect cables & ports</label>
+<label class="check-item"><input type="checkbox" value="Check power supply"> Check power supply</label>
+
+<label class="check-item"><input type="checkbox" value="Operating system updates"> Operating system updates</label>
+<label class="check-item"><input type="checkbox" value="Antivirus updated"> Antivirus updated</label>
+<label class="check-item"><input type="checkbox" value="Malware scan completed"> Malware scan completed</label>
+<label class="check-item"><input type="checkbox" value="Disk cleanup"> Disk cleanup</label>
+<label class="check-item"><input type="checkbox" value="Disk health check"> Disk health check</label>
+<label class="check-item"><input type="checkbox" value="Startup programs reviewed"> Startup programs reviewed</label>
+
+<label class="check-item"><input type="checkbox" value="Network connectivity tested"> Network connectivity tested</label>
+<label class="check-item"><input type="checkbox" value="Firewall enabled"> Firewall enabled</label>
+<label class="check-item"><input type="checkbox" value="Backup verified"> Backup verified</label>
+<label class="check-item"><input type="checkbox" value="User password policy checked"> User password policy checked</label>
+
+</div>
+</div>
+
+<!-- REMARKS -->
+<div class="section">
+<h2>Remarks / Issues Found</h2>
+<textarea id="remarks"></textarea>
+</div>
+
+<!-- ACTIONS -->
+<div class="actions">
+<button type="submit">Submit Checklist</button>
+<button type="button" class="print-btn" onclick="window.print()">Print</button>
+<button type="button" class="view-btn" onclick="location.href='view_checklists.html'">
+View Submitted Checklists
+</button>
+</div>
+
+</form>
+</div>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+<script>
+// 🔹 Firebase Config
+const firebaseConfig = {
+  apiKey: "AIzaSyB8JJysKYC8bF1LNEKxQVgmAECSNDtJ4k",
+  authDomain: "maintenance-b02f5.firebaseapp.com",
+  databaseURL: "https://maintenance-b02f5-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "maintenance-b02f5",
+  storageBucket: "maintenance-b02f5.firebasestorage.app",
+  messagingSenderId: "1082192524878",
+  appId: "1:1082192524878:web:6c58aec531f7743f45b51f",
+  measurementId: "G-GTNHPXQJH3"
+};
+
+// 🔹 Initialize Firebase
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+// 🔹 Submit Form
+document.getElementById("maintenanceForm").addEventListener("submit", e => {
+    e.preventDefault();
+
+    const checklist = [];
+    document.querySelectorAll(".checklist input[type=checkbox]:checked")
+        .forEach(cb => checklist.push(cb.value));
+
+    const record = {
+        technician: document.getElementById("technician").value,
+        department: document.getElementById("department").value,
+        asset: document.getElementById("asset").value,
+        date: document.getElementById("date").value,
+        remarks: document.getElementById("remarks").value,
+        checklist: checklist
+    };
+
+    // Push to Firebase Realtime Database
+    db.ref('checklists').push(record)
+      .then(() => {
+        alert("Checklist submitted successfully to Firebase!");
+        e.target.reset();
+      })
+      .catch(err => {
+        console.error(err);
+        alert("Error submitting checklist. Check console.");
+      });
+});
+</script>
+
+</body>
+</html>

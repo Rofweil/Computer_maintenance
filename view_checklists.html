@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Submitted Maintenance Checklists</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+:root {
+    --primary:#2f80ed;
+    --danger:#e74c3c;
+    --bg:#f5f7fa;
+    --card:#ffffff;
+    --border:#e0e0e0;
+}
+
+* {
+    box-sizing:border-box;
+    font-family:"Segoe UI", Tahoma, Arial, sans-serif;
+}
+
+body {
+    margin:0;
+    padding:20px;
+    background:var(--bg);
+}
+
+.container {
+    max-width:1100px;
+    margin:auto;
+    background:var(--card);
+    padding:25px;
+    border-radius:12px;
+    box-shadow:0 10px 25px rgba(0,0,0,.1);
+}
+
+h1 {
+    text-align:center;
+    color:var(--primary);
+}
+
+.top-bar {
+    display:flex;
+    justify-content:space-between;
+    margin-bottom:15px;
+    gap:10px;
+    flex-wrap:wrap;
+}
+
+input[type="search"] {
+    padding:10px;
+    border-radius:6px;
+    border:1px solid var(--border);
+    width:250px;
+}
+
+button {
+    padding:10px 18px;
+    border:none;
+    border-radius:6px;
+    cursor:pointer;
+    background:var(--primary);
+    color:white;
+}
+
+.btn-delete {
+    background:var(--danger);
+}
+
+.btn-back {
+    background:#6c757d;
+}
+
+table {
+    width:100%;
+    border-collapse:collapse;
+}
+
+th, td {
+    padding:12px;
+    border-bottom:1px solid var(--border);
+}
+
+th {
+    background:#f0f4ff;
+}
+
+tr:hover {
+    background:#f9fbff;
+}
+
+.empty {
+    text-align:center;
+    padding:30px;
+    color:#777;
+}
+
+/* ===== MODAL ===== */
+.modal {
+    display:none;
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background:rgba(0,0,0,.5);
+    justify-content:center;
+    align-items:center;
+    z-index:999;
+}
+
+.modal-content {
+    background:white;
+    width:90%;
+    max-width:700px;
+    max-height:85vh;
+    overflow-y:auto;
+    border-radius:10px;
+    padding:25px;
+}
+
+.modal h2 {
+    margin-top:0;
+    color:var(--primary);
+}
+
+.modal-section {
+    margin-bottom:20px;
+}
+
+.modal-section h3 {
+    border-left:4px solid var(--primary);
+    padding-left:10px;
+}
+
+.checklist-grid {
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+    gap:10px;
+}
+
+.check-item {
+    background:#f9fbff;
+    padding:8px;
+    border-radius:6px;
+    border:1px solid var(--border);
+}
+
+.close-btn {
+    background:#6c757d;
+    margin-top:10px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+<h1>Submitted Maintenance Checklists</h1>
+
+<div class="top-bar">
+    <input type="search" id="searchInput" placeholder="Search technician / asset">
+    <button class="btn-back" onclick="location.href='maintenance_form.html'">Back to Form</button>
+</div>
+
+<table>
+<thead>
+<tr>
+<th>Date</th>
+<th>Technician</th>
+<th>Department</th>
+<th>Asset</th>
+<th>Actions</th>
+</tr>
+</thead>
+<tbody id="tableBody"></tbody>
+</table>
+
+<div id="emptyMessage" class="empty" style="display:none;">
+No checklist submitted yet.
+</div>
+</div>
+
+<!-- ===== MODAL ===== -->
+<div class="modal" id="viewModal">
+<div class="modal-content">
+<h2>Checklist Details</h2>
+
+<div class="modal-section">
+<p><strong>Technician:</strong> <span id="mTech"></span></p>
+<p><strong>Department:</strong> <span id="mDept"></span></p>
+<p><strong>Asset Tag:</strong> <span id="mAsset"></span></p>
+<p><strong>Date:</strong> <span id="mDate"></span></p>
+</div>
+
+<div class="modal-section">
+<h3>Checklist</h3>
+<div class="checklist-grid" id="mChecklist"></div>
+</div>
+
+<div class="modal-section">
+<h3>Remarks</h3>
+<p id="mRemarks"></p>
+</div>
+
+<button class="close-btn" onclick="closeModal()">Close</button>
+</div>
+</div>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+<script>
+// 🔹 Firebase Config
+const firebaseConfig = {
+  apiKey: "AIzaSyB8JJysKYC8bF1LNEKxQVgmAECSNDtJ4k",
+  authDomain: "maintenance-b02f5.firebaseapp.com",
+  databaseURL: "https://maintenance-b02f5-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "maintenance-b02f5",
+  storageBucket: "maintenance-b02f5.firebasestorage.app",
+  messagingSenderId: "1082192524878",
+  appId: "1:1082192524878:web:6c58aec531f7743f45b51f",
+  measurementId: "G-GTNHPXQJH3"
+};
+
+// 🔹 Initialize Firebase
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+const tableBody = document.getElementById("tableBody");
+const emptyMessage = document.getElementById("emptyMessage");
+const modal = document.getElementById("viewModal");
+
+let data = [];
+let checklistItems = [
+    "Clean keyboard & mouse",
+    "Clean monitor screen",
+    "Clean internal dust",
+    "Check cooling fans",
+    "Inspect cables & ports",
+    "Check power supply",
+    "Operating system updates",
+    "Antivirus updated",
+    "Malware scan completed",
+    "Disk cleanup",
+    "Disk health check",
+    "Startup programs reviewed",
+    "Network connectivity tested",
+    "Firewall enabled",
+    "Backup verified",
+    "User password policy checked"
+];
+
+// 🔹 Fetch data from Firebase
+function fetchData() {
+    db.ref('checklists').once('value', snapshot => {
+        const obj = snapshot.val();
+        data = obj ? Object.entries(obj).map(([key, value]) => ({ key, ...value })) : [];
+        renderTable(data);
+    });
+}
+
+function renderTable(list) {
+    tableBody.innerHTML = "";
+    if (!list.length) {
+        emptyMessage.style.display = "block";
+        return;
+    }
+    emptyMessage.style.display = "none";
+
+    list.forEach((item, i) => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+            <td>${item.date || "-"}</td>
+            <td>${item.technician || "-"}</td>
+            <td>${item.department || "-"}</td>
+            <td>${item.asset || "-"}</td>
+            <td>
+                <button onclick="viewItem(${i})">View</button>
+                <button class="btn-delete" onclick="deleteItem(${i})">Delete</button>
+            </td>
+        `;
+        tableBody.appendChild(row);
+    });
+}
+
+function viewItem(index) {
+    const item = data[index];
+    document.getElementById("mTech").textContent = item.technician;
+    document.getElementById("mDept").textContent = item.department;
+    document.getElementById("mAsset").textContent = item.asset;
+    document.getElementById("mDate").textContent = item.date;
+    document.getElementById("mRemarks").textContent = item.remarks || "None";
+
+    const list = document.getElementById("mChecklist");
+    list.innerHTML = "";
+    checklistItems.forEach(name => {
+        const checked = item.checklist?.includes(name);
+        const div = document.createElement("div");
+        div.className = "check-item";
+        div.innerHTML = checked ? `✅ ${name}` : `❌ ${name}`;
+        list.appendChild(div);
+    });
+
+    modal.style.display = "flex";
+}
+
+function closeModal() {
+    modal.style.display = "none";
+}
+
+function deleteItem(index) {
+    if (!confirm("Delete this checklist?")) return;
+    const item = data[index];
+    db.ref('checklists/' + item.key).remove()
+      .then(() => fetchData())
+      .catch(err => alert("Error deleting: " + err));
+}
+
+// 🔹 Search functionality
+document.getElementById("searchInput").addEventListener("input", e => {
+    const val = e.target.value.toLowerCase();
+    renderTable(data.filter(d =>
+        d.technician?.toLowerCase().includes(val) ||
+        d.asset?.toLowerCase().includes(val) ||
+        d.department?.toLowerCase().includes(val)
+    ));
+});
+
+fetchData();
+</script>
+
+</body>
+</html>
