@@ -142,7 +142,16 @@ let checklistItems = [
 function fetchData() {
     db.ref('checklists').once('value', snapshot => {
         const obj = snapshot.val();
-        data = obj ? Object.entries(obj).map(([key, value]) => ({ key, ...value })) : [];
+        data = obj ? Object.entries(obj).map(([key, value]) => {
+            // Convert checklist object to array of item names that are true
+            let checklistArray = [];
+            if(value.checklist && typeof value.checklist === 'object') {
+                checklistArray = Object.entries(value.checklist)
+                                     .filter(([k,v]) => v)
+                                     .map(([k]) => k);
+            }
+            return { key, ...value, checklist: checklistArray };
+        }) : [];
         renderTable(data);
     });
 }
@@ -269,7 +278,7 @@ document.getElementById("exportPdfBtn").addEventListener("click", () => {
         let startY = y;
 
         checklistItems.forEach(name => {
-            const hasDone = (item.checklist || []).includes(name);
+            const hasDone = checklistItems.includes(name) && item.checklist?.includes(name);
             doc.setDrawColor(0);
             doc.setFillColor(hasDone ? 0,180,0 : 220,0,0); // green/red
             doc.rect(x, startY, boxWidth, boxHeight, 'FD'); // fill + border
@@ -315,6 +324,7 @@ fetchData();
 
 </body>
 </html>
+
 
 
 
