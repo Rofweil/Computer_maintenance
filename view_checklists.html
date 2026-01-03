@@ -30,7 +30,6 @@ th { background:#f0f4ff; }
 tr:hover { background:#f9fbff; }
 .empty { text-align:center; padding:30px; color:#777; }
 
-/* ===== MODAL ===== */
 .modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,.5); justify-content:center; align-items:center; z-index:999; }
 .modal-content { background:white; width:90%; max-width:700px; max-height:85vh; overflow-y:auto; border-radius:10px; padding:25px; }
 .modal h2 { margin-top:0; color:var(--primary); }
@@ -41,12 +40,9 @@ tr:hover { background:#f9fbff; }
 .close-btn { background:#6c757d; margin-top:10px; }
 </style>
 
-<!-- SheetJS for Excel -->
 <script src="https://cdn.sheetjs.com/xlsx-0.19.2/package/dist/xlsx.full.min.js"></script>
-<!-- jsPDF for PDF -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
-<!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
@@ -83,7 +79,6 @@ tr:hover { background:#f9fbff; }
 <div id="emptyMessage" class="empty" style="display:none;">No checklist submitted yet.</div>
 </div>
 
-<!-- ===== MODAL ===== -->
 <div class="modal" id="viewModal">
 <div class="modal-content">
 <h2>Checklist Details</h2>
@@ -138,13 +133,8 @@ function fetchData() {
     db.ref('checklists').once('value', snapshot => {
         const obj = snapshot.val();
         data = obj ? Object.entries(obj).map(([key, value]) => {
-            // convert checklist object -> array
-            let checklistArray = [];
-            if(value.checklist && typeof value.checklist === 'object') {
-                checklistArray = Object.entries(value.checklist)
-                                     .filter(([k,v]) => v)
-                                     .map(([k]) => k);
-            }
+            // ✅ Fix: checklist is already array in your JSON
+            const checklistArray = Array.isArray(value.checklist) ? value.checklist : [];
             return { key, ...value, checklist: checklistArray };
         }) : [];
         renderTable(data);
@@ -229,7 +219,7 @@ document.getElementById("exportExcelBtn").addEventListener("click", ()=>{
     XLSX.writeFile(wb, `Maintenance_Report_${document.getElementById("fromDate").value}_${document.getElementById("toDate").value}.xlsx`);
 });
 
-// PDF export
+// PDF export (kept same logic)
 document.getElementById("exportPdfBtn").addEventListener("click", ()=>{
     const filtered = getFilteredByDate();
     if(!filtered.length){ alert("No data in this date range."); return; }
@@ -267,7 +257,6 @@ document.getElementById("exportPdfBtn").addEventListener("click", ()=>{
 
             x += boxWidth+gapX;
             if(x+boxWidth > pageWidth-margin){ x=margin; startY+=boxHeight+gapY; }
-
             if(startY+boxHeight+40>pageHeight){ doc.addPage(); startY=40; x=margin; }
         });
         y = startY+boxHeight+25;
