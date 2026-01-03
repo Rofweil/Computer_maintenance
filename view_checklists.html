@@ -229,65 +229,46 @@ document.getElementById("exportExcelBtn").addEventListener("click", ()=>{
     XLSX.writeFile(wb,`Maintenance_Report_${document.getElementById("fromDate").value}_${document.getElementById("toDate").value}.xlsx`);
 });
 
-// ===== Export PDF (like modal layout) =====
-document.getElementById("exportPdfBtn").addEventListener("click", () => {
+// ===== Export PDF (colored ✅/❌) =====
+document.getElementById("exportPdfBtn").addEventListener("click", ()=>{
     const filtered = getFilteredByDate();
-    if (!filtered.length) { alert("No data in this date range."); return; }
+    if(!filtered.length){ alert("No data in this date range."); return; }
 
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF('p','pt');
-    let y = 40;
+    doc.setFontSize(14);
+    doc.text("Maintenance Report", 40, 40);
 
-    filtered.forEach(item => {
-        doc.setFontSize(16);
-        doc.setTextColor(47,128,237);
-        doc.text("Checklist Details", 40, y); y += 25;
+    const head = ["Date","Technician","Department","Asset","Remarks", ...checklistItems];
+    const body = filtered.map(item=>{
+        const row = [item.date,item.technician,item.department,item.asset,item.remarks||"-"];
+        checklistItems.forEach(name=>row.push(item.checklist?.includes(name)?"✅":"❌"));
+        return row;
+    });
 
-        doc.setFontSize(12);
-        doc.setTextColor(0,0,0);
-        doc.text(`Technician: ${item.technician}`, 40, y); y += 15;
-        doc.text(`Department: ${item.department}`, 40, y); y += 15;
-        doc.text(`Asset Tag: ${item.asset}`, 40, y); y += 15;
-        doc.text(`Date: ${item.date}`, 40, y); y += 20;
-
-        // Checklist heading
-        doc.setTextColor(47,128,237);
-        doc.text("Checklist", 40, y); y += 15;
-
-        // Draw checklist items as boxes
-        const boxWidth = 200;
-        const boxHeight = 18;
-        const gapX = 10, gapY = 10;
-        let x = 40;
-        let startY = y;
-
-        checklistItems.forEach((name, i) => {
-            const hasDone = item.checklist?.includes(name);
-            doc.setDrawColor(0);
-            doc.setFillColor(hasDone ? 0,180,0 : 220,0,0); // green/red
-            doc.rect(x, startY, boxWidth, boxHeight, 'FD'); // fill + border
-
-            doc.setTextColor(255,255,255);
-            doc.text((hasDone ? "✅ " : "❌ ") + name, x + 4, startY + 13);
-
-            x += boxWidth + gapX;
-            if (x + boxWidth > doc.internal.pageSize.width - 40) {
-                x = 40;
-                startY += boxHeight + gapY;
+    doc.autoTable({
+        head: [head],
+        body: body,
+        startY: 60,
+        styles: { fontSize: 9, cellPadding: 4, overflow: 'linebreak' },
+        headStyles: { fillColor: [47,128,237], textColor: 255, fontStyle:'bold' },
+        columnStyles: head.reduce((acc,col,i)=>{
+            acc[i]={cellWidth:i>4?40:'auto'}; // checklist columns narrow, main info auto
+            return acc;
+        }, {}),
+        didParseCell: function(data) {
+            if(data.row.section==='body'){
+                if(data.cell.text[0] === "✅"){
+                    data.cell.styles.textColor = [0,150,0]; // green
+                    data.cell.styles.fontStyle = 'bold';
+                } else if(data.cell.text[0] === "❌"){
+                    data.cell.styles.textColor = [200,0,0]; // red
+                    data.cell.styles.fontStyle = 'bold';
+                }
             }
-        });
-
-        y = startY + boxHeight + 25;
-
-        // Remarks
-        doc.setTextColor(47,128,237);
-        doc.text("Remarks", 40, y); y += 15;
-        doc.setTextColor(0,0,0);
-        const splitRemarks = doc.splitTextToSize(item.remarks || "-", doc.internal.pageSize.width - 80);
-        doc.text(splitRemarks, 40, y);
-        y += splitRemarks.length * 12 + 20;
-
-        if (y > doc.internal.pageSize.height - 60) doc.addPage(), y = 40;
+        },
+        margin: { left: 20, right: 20 },
+        theme: 'grid'
     });
 
     doc.save(`Maintenance_Report_${document.getElementById("fromDate").value}_${document.getElementById("toDate").value}.pdf`);
@@ -299,5 +280,6 @@ fetchData();
 
 </body>
 </html>
+
 
 
