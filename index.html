@@ -1,32 +1,86 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Redirecting...</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<!-- Redirect to maintenance_form.html -->
-<script>
-  window.onload = function() {
-    window.location.href = "maintenance_form.html";
-  };
-</script>
-<style>
-/* Optional: simple loading screen */
-body {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  margin: 0;
-  font-family: "Segoe UI", Tahoma, Arial, sans-serif;
-  background: linear-gradient(135deg, #56ccf2, #2f80ed);
-  color: white;
-  text-align: center;
-}
-</style>
+    <meta charset="UTF-8">
+    <title>IT Maintenance System</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 80px auto;
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            margin: 15px 0;
+            font-size: 16px;
+            font-weight: bold;
+            color: #fff;
+            background: #2563eb;
+            border: none;
+            border-radius: 6px;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            background: #1e40af;
+        }
+
+        .btn-secondary {
+            background: #10b981;
+        }
+
+        .btn-secondary:hover {
+            background: #059669;
+        }
+
+        .btn-view {
+            background: #6b7280;
+        }
+
+        .btn-view:hover {
+            background: #4b5563;
+        }
+    </style>
 </head>
 <body>
-<h1>Redirecting to Maintenance Form...</h1>
-<p>If you are not redirected automatically, <a href="maintenance_form.html" style="color:white;text-decoration:underline;">click here</a>.</p>
+
+    <div class="container">
+        <h1>IT Maintenance Checklist</h1>
+
+        <a href="maintenance_form.html" class="btn">
+            🖥️ Computer Maintenance Checklist
+        </a>
+
+        <a href="printer_maintenance_form.html" class="btn btn-secondary">
+            🖨️ Printer Maintenance Checklist
+        </a>
+
+        <a href="view_checklists.html" class="btn btn-view">
+            📋 View Maintenance Records
+        </a>
+    </div>
+
 </body>
 </html>
