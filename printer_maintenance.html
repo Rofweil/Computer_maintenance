@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Printer Maintenance Checklist</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+:root {
+    --primary: #2f80ed;
+    --secondary: #56ccf2;
+    --bg: #f5f7fa;
+    --card: #ffffff;
+    --text: #333;
+    --border: #e0e0e0;
+}
+
+* {
+    box-sizing: border-box;
+    font-family: "Segoe UI", Tahoma, Arial, sans-serif;
+}
+
+body {
+    margin: 0;
+    padding: 20px;
+    background: linear-gradient(135deg, var(--secondary), var(--primary));
+}
+
+.container {
+    max-width: 900px;
+    margin: auto;
+    background: var(--card);
+    border-radius: 12px;
+    padding: 30px;
+    box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+}
+
+h1 {
+    text-align: center;
+    color: var(--primary);
+    margin-bottom: 10px;
+}
+
+.subtitle {
+    text-align: center;
+    color: #666;
+    margin-bottom: 30px;
+}
+
+.section {
+    margin-bottom: 30px;
+}
+
+.section h2 {
+    border-left: 5px solid var(--primary);
+    padding-left: 12px;
+    color: var(--text);
+    margin-bottom: 15px;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 15px;
+}
+
+label {
+    font-size: 14px;
+    color: #555;
+}
+
+select,
+input[type="text"],
+input[type="date"],
+textarea {
+    width: 100%;
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    margin-top: 5px;
+}
+
+textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+.checklist {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 12px;
+}
+
+.check-item {
+    background: #f9fbff;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.check-item input {
+    transform: scale(1.2);
+}
+
+.actions {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 30px;
+}
+
+button {
+    background: var(--primary);
+    color: #fff;
+    border: none;
+    padding: 12px 22px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 15px;
+}
+
+button:hover {
+    background: #1c66d6;
+}
+
+.print-btn { background: #6c757d; }
+.view-btn { background: #27ae60; }
+
+@media print {
+    body { background: none; }
+    .container { box-shadow: none; }
+    .actions { display: none; }
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+<h1>Printer Maintenance Checklist</h1>
+<p class="subtitle">Planned Preventive Maintenance (PPM)</p>
+
+<form id="maintenanceForm">
+
+<!-- BASIC INFO -->
+<div class="section">
+<h2>Basic Information</h2>
+<div class="info-grid">
+
+<div>
+<label>Technician Name</label>
+<select id="technician" required>
+<option value="">-- Select Technician --</option>
+<option value="Adly">Adly</option>
+<option value="Eizzat">Eizzat</option>
+</select>
+</div>
+
+<div>
+<label>Department / Location</label>
+<input type="text" id="department" required>
+</div>
+
+<div>
+<label>Printer Asset Tag</label>
+<input type="text" id="asset" required>
+</div>
+
+<div>
+<label>Date</label>
+<input type="date" id="date" required>
+</div>
+
+</div>
+</div>
+
+<!-- CHECKLIST -->
+<div class="section">
+<h2>Printer PPM Checklist</h2>
+<div class="checklist">
+
+<label class="check-item"><input type="checkbox" value="Printer exterior cleaned"> Printer exterior cleaned</label>
+<label class="check-item"><input type="checkbox" value="Internal dust cleaned"> Internal dust cleaned</label>
+<label class="check-item"><input type="checkbox" value="Paper path cleaned"> Paper path cleaned</label>
+<label class="check-item"><input type="checkbox" value="Pickup and feed rollers cleaned"> Pickup and feed rollers cleaned</label>
+<label class="check-item"><input type="checkbox" value="Scanner glass cleaned"> Scanner glass cleaned</label>
+<label class="check-item"><input type="checkbox" value="ADF glass cleaned"> ADF glass cleaned</label>
+
+<label class="check-item"><input type="checkbox" value="Toner or ink level checked"> Toner / ink level checked</label>
+<label class="check-item"><input type="checkbox" value="Drum unit condition checked"> Drum unit condition checked</label>
+<label class="check-item"><input type="checkbox" value="Fuser unit condition checked"> Fuser unit condition checked</label>
+<label class="check-item"><input type="checkbox" value="Waste toner checked"> Waste toner checked</label>
+
+<label class="check-item"><input type="checkbox" value="Paper feed tested"> Paper feed tested</label>
+<label class="check-item"><input type="checkbox" value="No abnormal noise"> No abnormal noise</label>
+<label class="check-item"><input type="checkbox" value="Duplex unit tested"> Duplex unit tested</label>
+<label class="check-item"><input type="checkbox" value="ADF tested"> ADF tested</label>
+
+<label class="check-item"><input type="checkbox" value="Test page printed"> Test page printed</label>
+<label class="check-item"><input type="checkbox" value="Print quality normal"> Print quality normal</label>
+
+<label class="check-item"><input type="checkbox" value="Network connectivity tested"> Network connectivity tested</label>
+<label class="check-item"><input type="checkbox" value="Printer IP reachable"> Printer IP reachable</label>
+<label class="check-item"><input type="checkbox" value="Driver checked or updated"> Driver checked / updated</label>
+
+<label class="check-item"><input type="checkbox" value="Power cable in good condition"> Power cable in good condition</label>
+<label class="check-item"><input type="checkbox" value="Printer environment safe"> Printer environment safe</label>
+
+</div>
+</div>
+
+<!-- REMARKS -->
+<div class="section">
+<h2>Remarks / Issues Found</h2>
+<textarea id="remarks"></textarea>
+</div>
+
+<!-- ACTIONS -->
+<div class="actions">
+<button type="submit">Submit Checklist</button>
+<button type="button" class="print-btn" onclick="window.print()">Print</button>
+<button type="button" class="view-btn" onclick="location.href='view_checklists.html'">
+View Submitted Checklists
+</button>
+</div>
+
+</form>
+</div>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyB8JJysKYC8bF1LNEKxQVgmAECSNDtJ4k",
+  authDomain: "maintenance-b02f5.firebaseapp.com",
+  databaseURL: "https://maintenance-b02f5-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "maintenance-b02f5",
+  storageBucket: "maintenance-b02f5.firebasestorage.app",
+  messagingSenderId: "1082192524878",
+  appId: "1:1082192524878:web:6c58aec531f7743f45b51f"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+document.getElementById("maintenanceForm").addEventListener("submit", e => {
+    e.preventDefault();
+
+    const checklist = [];
+    document.querySelectorAll(".checklist input[type=checkbox]:checked")
+        .forEach(cb => checklist.push(cb.value));
+
+    const record = {
+        technician: technician.value,
+        department: department.value,
+        asset: asset.value,
+        date: date.value,
+        remarks: remarks.value,
+        checklist: checklist
+    };
+
+    db.ref('checklists').push(record)
+      .then(() => {
+        alert("Printer checklist submitted successfully!");
+        e.target.reset();
+      })
+      .catch(err => {
+        console.error(err);
+        alert("Error submitting checklist.");
+      });
+});
+</script>
+
+</body>
+</html>
