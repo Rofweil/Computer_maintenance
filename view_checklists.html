@@ -15,12 +15,36 @@
 }
 * { box-sizing:border-box; font-family:"Segoe UI", Tahoma, Arial, sans-serif; }
 body { margin:0; padding:20px; background:var(--bg); }
-.container { max-width:1100px; margin:auto; background:var(--card); padding:25px; border-radius:12px; box-shadow:0 10px 25px rgba(0,0,0,.1); }
+.container {
+    max-width:1100px;
+    margin:auto;
+    background:var(--card);
+    padding:25px;
+    border-radius:12px;
+    box-shadow:0 10px 25px rgba(0,0,0,.1);
+}
 h1 { text-align:center; color:var(--primary); }
 
-.top-bar { display:flex; flex-wrap:wrap; justify-content:space-between; gap:10px; margin-bottom:15px; }
-input[type="search"], input[type="date"] { padding:8px; border-radius:6px; border:1px solid var(--border); margin-right:5px; }
-button { padding:10px 18px; border:none; border-radius:6px; cursor:pointer; background:var(--primary); color:white; margin-right:5px; }
+.top-bar {
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:space-between;
+    gap:10px;
+    margin-bottom:15px;
+}
+input[type="search"], input[type="date"] {
+    padding:8px;
+    border-radius:6px;
+    border:1px solid var(--border);
+}
+button {
+    padding:10px 18px;
+    border:none;
+    border-radius:6px;
+    cursor:pointer;
+    background:var(--primary);
+    color:white;
+}
 .btn-delete { background:var(--danger); }
 .btn-back { background:#6c757d; }
 
@@ -30,13 +54,41 @@ th { background:#f0f4ff; }
 tr:hover { background:#f9fbff; }
 .empty { text-align:center; padding:30px; color:#777; }
 
-.modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,.5); justify-content:center; align-items:center; z-index:999; }
-.modal-content { background:white; width:90%; max-width:700px; max-height:85vh; overflow-y:auto; border-radius:10px; padding:25px; }
+.modal {
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.5);
+    justify-content:center;
+    align-items:center;
+    z-index:999;
+}
+.modal-content {
+    background:white;
+    width:90%;
+    max-width:700px;
+    max-height:85vh;
+    overflow-y:auto;
+    border-radius:10px;
+    padding:25px;
+}
 .modal h2 { margin-top:0; color:var(--primary); }
 .modal-section { margin-bottom:20px; }
-.modal-section h3 { border-left:4px solid var(--primary); padding-left:10px; }
-.checklist-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:10px; }
-.check-item { background:#f9fbff; padding:8px; border-radius:6px; border:1px solid var(--border); }
+.modal-section h3 {
+    border-left:4px solid var(--primary);
+    padding-left:10px;
+}
+.checklist-grid {
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:10px;
+}
+.check-item {
+    background:#f9fbff;
+    padding:8px;
+    border-radius:6px;
+    border:1px solid var(--border);
+}
 .close-btn { background:#6c757d; margin-top:10px; }
 </style>
 
@@ -45,22 +97,24 @@ tr:hover { background:#f9fbff; }
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-
 </head>
+
 <body>
 
 <div class="container">
 <h1>Submitted Maintenance Checklists</h1>
 
 <div class="top-bar">
-    <input type="search" id="searchInput" placeholder="Search technician / asset">
+    <input type="search" id="searchInput" placeholder="Search technician / asset / department">
     <div>
-        <label>From: <input type="date" id="fromDate"></label>
-        <label>To: <input type="date" id="toDate"></label>
+        <label>From <input type="date" id="fromDate"></label>
+        <label>To <input type="date" id="toDate"></label>
     </div>
-    <button id="exportExcelBtn">Export Excel</button>
-    <button id="exportPdfBtn">Export PDF</button>
-    <button class="btn-back" onclick="location.href='maintenance_form.html'">Back to Form</button>
+    <div>
+        <button id="exportExcelBtn">Export Excel</button>
+        <button id="exportPdfBtn">Export PDF</button>
+        <button class="btn-back" onclick="history.back()">Back</button>
+    </div>
 </div>
 
 <table>
@@ -79,6 +133,7 @@ tr:hover { background:#f9fbff; }
 <div id="emptyMessage" class="empty" style="display:none;">No checklist submitted yet.</div>
 </div>
 
+<!-- MODAL -->
 <div class="modal" id="viewModal">
 <div class="modal-content">
 <h2>Checklist Details</h2>
@@ -91,7 +146,7 @@ tr:hover { background:#f9fbff; }
 </div>
 
 <div class="modal-section">
-<h3>Checklist</h3>
+<h3>Checklist Items Completed</h3>
 <div class="checklist-grid" id="mChecklist"></div>
 </div>
 
@@ -112,9 +167,9 @@ const firebaseConfig = {
   projectId: "maintenance-b02f5",
   storageBucket: "maintenance-b02f5.firebasestorage.app",
   messagingSenderId: "1082192524878",
-  appId: "1:1082192524878:web:6c58aec531f7743f45b51f",
-  measurementId: "G-GTNHPXQJH3"
+  appId: "1:1082192524878:web:6c58aec531f7743f45b51f"
 };
+
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
@@ -123,31 +178,23 @@ const emptyMessage = document.getElementById("emptyMessage");
 const modal = document.getElementById("viewModal");
 
 let data = [];
-let checklistItems = [
-    "Clean keyboard & mouse","Clean monitor screen","Clean internal dust","Check cooling fans","Inspect cables & ports","Check power supply",
-    "Operating system updates","Antivirus updated","Malware scan completed","Disk cleanup","Disk health check","Startup programs reviewed",
-    "Network connectivity tested","Firewall enabled","Backup verified","User password policy checked"
-];
 
-// ✅ Fetch Firebase data
-function fetchData() {
-    db.ref('checklists').once('value', snapshot => {
-        const obj = snapshot.val();
-        data = obj ? Object.entries(obj).map(([key, value]) => {
-            return { key, ...value, checklist: Array.isArray(value.checklist) ? value.checklist : [] };
-        }) : [];
+function fetchData(){
+    db.ref("checklists").once("value", snap=>{
+        const val = snap.val();
+        data = val ? Object.entries(val).map(([key,v])=>({key,...v})) : [];
         renderTable(data);
     });
 }
 
-function renderTable(list) {
+function renderTable(list){
     tableBody.innerHTML = "";
     if(!list.length){ emptyMessage.style.display="block"; return; }
     emptyMessage.style.display="none";
 
     list.forEach((item,i)=>{
-        const row = document.createElement("tr");
-        row.innerHTML = `
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
             <td>${item.date||"-"}</td>
             <td>${item.technician||"-"}</td>
             <td>${item.department||"-"}</td>
@@ -157,136 +204,84 @@ function renderTable(list) {
                 <button class="btn-delete" onclick="deleteItem(${i})">Delete</button>
             </td>
         `;
-        tableBody.appendChild(row);
+        tableBody.appendChild(tr);
     });
 }
 
-function viewItem(index) {
-    const item = data[index];
-    document.getElementById("mTech").textContent = item.technician;
-    document.getElementById("mDept").textContent = item.department;
-    document.getElementById("mAsset").textContent = item.asset;
-    document.getElementById("mDate").textContent = item.date;
-    document.getElementById("mRemarks").textContent = item.remarks || "None";
+function viewItem(i){
+    const item = data[i];
+    mTech.textContent = item.technician || "-";
+    mDept.textContent = item.department || "-";
+    mAsset.textContent = item.asset || "-";
+    mDate.textContent = item.date || "-";
+    mRemarks.textContent = item.remarks || "None";
 
     const list = document.getElementById("mChecklist");
     list.innerHTML = "";
-    checklistItems.forEach(name => {
+    (item.checklist || []).forEach(name=>{
         const div = document.createElement("div");
         div.className = "check-item";
-        div.textContent = item.checklist.includes(name) ? `✅ ${name}` : `❌ ${name}`;
+        div.textContent = "✅ " + name;
         list.appendChild(div);
     });
 
-    modal.style.display = "flex";
+    modal.style.display="flex";
 }
 
 function closeModal(){ modal.style.display="none"; }
 
-function deleteItem(index){
+function deleteItem(i){
     if(!confirm("Delete this checklist?")) return;
-    const item = data[index];
-    db.ref('checklists/'+item.key).remove().then(()=>fetchData());
+    db.ref("checklists/"+data[i].key).remove().then(fetchData);
 }
 
-document.getElementById("searchInput").addEventListener("input", e=>{
-    const val = e.target.value.toLowerCase();
-    renderTable(data.filter(d=>d.technician?.toLowerCase().includes(val)||
-                               d.asset?.toLowerCase().includes(val)||
-                               d.department?.toLowerCase().includes(val)));
+searchInput.addEventListener("input", e=>{
+    const v = e.target.value.toLowerCase();
+    renderTable(data.filter(d=>
+        d.technician?.toLowerCase().includes(v) ||
+        d.asset?.toLowerCase().includes(v) ||
+        d.department?.toLowerCase().includes(v)
+    ));
 });
 
-function getFilteredByDate(){
-    const from = document.getElementById("fromDate").value;
-    const to = document.getElementById("toDate").value;
-    if(!from||!to) return data;
-    return data.filter(item=>item.date>=from && item.date<=to);
+function getFiltered(){
+    const f = fromDate.value, t = toDate.value;
+    return (!f||!t)? data : data.filter(d=>d.date>=f && d.date<=t);
 }
 
-// Excel export
-document.getElementById("exportExcelBtn").addEventListener("click", ()=>{
-    const filtered = getFilteredByDate();
-    if(!filtered.length){ alert("No data in this date range."); return; }
-    const ws_data = filtered.map(item=>{
-        const obj = { Date:item.date, Technician:item.technician, Department:item.department, Asset:item.asset, Remarks:item.remarks };
-        checklistItems.forEach(name => obj[name] = item.checklist.includes(name) ? "✅" : "❌");
-        return obj;
-    });
+exportExcelBtn.onclick = ()=>{
+    const list = getFiltered();
+    if(!list.length) return alert("No data.");
+    const rows = list.map(d=>({
+        Date:d.date, Technician:d.technician,
+        Department:d.department, Asset:d.asset,
+        Checklist:(d.checklist||[]).join(", "),
+        Remarks:d.remarks
+    }));
     const wb = XLSX.utils.book_new();
-    const ws = XLSX.utils.json_to_sheet(ws_data);
-    XLSX.utils.book_append_sheet(wb, ws, "Checklists");
-    XLSX.writeFile(wb, `Maintenance_Report_${document.getElementById("fromDate").value}_${document.getElementById("toDate").value}.xlsx`);
-});
+    const ws = XLSX.utils.json_to_sheet(rows);
+    XLSX.utils.book_append_sheet(wb,ws,"Maintenance");
+    XLSX.writeFile(wb,"Maintenance_Report.xlsx");
+};
 
-// PDF export
-document.getElementById("exportPdfBtn").addEventListener("click", () => {
-    const filtered = getFilteredByDate();
-    if (!filtered.length) { alert("No data in this date range."); return; }
-
+exportPdfBtn.onclick = ()=>{
+    const list = getFiltered();
+    if(!list.length) return alert("No data.");
     const { jsPDF } = window.jspdf;
-    const doc = new jsPDF('p', 'pt');
-    let y = 40, margin = 40;
-    const pageWidth = doc.internal.pageSize.width;
-    const pageHeight = doc.internal.pageSize.height;
-
-    filtered.forEach(item => {
-        doc.setFontSize(16); 
-        doc.setTextColor(47, 128, 237);
-        doc.text("Checklist Details", margin, y); 
-        y += 25;
-
-        doc.setFontSize(12); 
-        doc.setTextColor(0, 0, 0);
-        doc.text(`Technician: ${item.technician || "-"}`, margin, y); y += 15;
-        doc.text(`Department: ${item.department || "-"}`, margin, y); y += 15;
-        doc.text(`Asset Tag: ${item.asset || "-"}`, margin, y); y += 15;
-        doc.text(`Date: ${item.date || "-"}`, margin, y); y += 20;
-
-        // Legend
-        doc.setFontSize(10);
-        doc.setTextColor(0,0,0);
-        doc.text("Legend: Green = Done, Red = Not Done", margin, y); 
-        y += 15;
-
-        doc.setTextColor(47, 128, 237); 
-        doc.text("Checklist", margin, y); y += 15;
-
-        let x = margin, startY = y;
-        const boxWidth = 200, boxHeight = 18, gapX = 10, gapY = 10;
-
-        checklistItems.forEach(name => {
-            const done = item.checklist.includes(name);
-            doc.setDrawColor(0);
-            doc.setFillColor(done ? 0 : 220, done ? 180 : 0, 0); // Green or red
-            doc.rect(x, startY, boxWidth, boxHeight, 'FD');
-
-            doc.setFontSize(8); // smaller text to fit
-            doc.setTextColor(255, 255, 255);
-            doc.text(name, x + 2, startY + 12, { maxWidth: boxWidth - 4 }); // wrap text if needed
-
-            x += boxWidth + gapX;
-            if (x + boxWidth > pageWidth - margin) { x = margin; startY += boxHeight + gapY; }
-            if (startY + boxHeight + 40 > pageHeight) { doc.addPage(); startY = 40; x = margin; }
-        });
-        y = startY + boxHeight + 25;
-
-        doc.setTextColor(47, 128, 237); 
-        doc.text("Remarks", margin, y); y += 15;
-        doc.setTextColor(0,0,0);
-        const splitRemarks = doc.splitTextToSize(item.remarks || "-", pageWidth - margin * 2);
-        doc.text(splitRemarks, margin, y);
-        y += splitRemarks.length * 12 + 20;
-        if (y > pageHeight - 60) { doc.addPage(); y = 40; }
+    const doc = new jsPDF();
+    let y = 20;
+    list.forEach(d=>{
+        doc.text(`Asset: ${d.asset}`,10,y); y+=6;
+        doc.text(`Technician: ${d.technician}`,10,y); y+=6;
+        doc.text(`Checklist: ${(d.checklist||[]).join(", ")}`,10,y,{maxWidth:180});
+        y+=15;
+        if(y>270){ doc.addPage(); y=20; }
     });
-
-    const from = document.getElementById("fromDate").value;
-    const to = document.getElementById("toDate").value;
-    doc.save(`Maintenance_Report_${from}_${to}.pdf`);
-});
+    doc.save("Maintenance_Report.pdf");
+};
 
 fetchData();
 </script>
 
 </body>
 </html>
-
