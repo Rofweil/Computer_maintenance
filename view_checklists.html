@@ -337,13 +337,17 @@ exportPdfBtn.onclick = () => {
 
     filtered.forEach((item, index) => {
 
-        // Detect checklist type
-        const isPrinter = printerChecklistItems.some(c =>
-            (item.checklist || []).includes(c)
-        );
-        const masterList = isPrinter
+        // Detect checklist type by counting matches
+        const compMatches = computerChecklistItems.filter(c => item.checklist?.includes(c)).length;
+        const printerMatches = printerChecklistItems.filter(c => item.checklist?.includes(c)).length;
+
+        const masterList = printerMatches > compMatches
             ? printerChecklistItems
             : computerChecklistItems;
+
+        const title = printerMatches > compMatches
+            ? "Printer Maintenance Checklist"
+            : "Computer Maintenance Checklist";
 
         // New page if needed
         if (index > 0) {
@@ -354,11 +358,7 @@ exportPdfBtn.onclick = () => {
         /* ===== HEADER ===== */
         doc.setFontSize(16);
         doc.setTextColor(47, 128, 237);
-        doc.text(
-            isPrinter ? "Printer Maintenance Checklist" : "Computer Maintenance Checklist",
-            margin,
-            y
-        );
+        doc.text(title, margin, y);
         y += 25;
 
         doc.setFontSize(12);
@@ -395,9 +395,7 @@ exportPdfBtn.onclick = () => {
 
             doc.setFontSize(8);
             doc.setTextColor(255, 255, 255);
-            doc.text(name, x + 4, y + 12, {
-                maxWidth: boxWidth - 8
-            });
+            doc.text(name, x + 4, y + 12, { maxWidth: boxWidth - 8 });
 
             x += boxWidth + gapX;
 
@@ -434,11 +432,13 @@ exportPdfBtn.onclick = () => {
     const to = toDate.value || "ALL";
     doc.save(`Maintenance_Report_${from}_${to}.pdf`);
 };
+
 fetchData();
 </script>
 
 </body>
 </html>
+
 
 
 
