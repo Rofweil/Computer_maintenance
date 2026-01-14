@@ -176,7 +176,49 @@ const db = firebase.database();
 const tableBody = document.getElementById("tableBody");
 const emptyMessage = document.getElementById("emptyMessage");
 const modal = document.getElementById("viewModal");
+const computerChecklistItems = [
+  "Clean keyboard & mouse",
+  "Clean monitor screen",
+  "Clean internal dust",
+  "Check cooling fans",
+  "Inspect cables & ports",
+  "Check power supply",
+  "Operating system updates",
+  "Antivirus updated",
+  "Malware scan completed",
+  "Disk cleanup",
+  "Disk health check",
+  "Startup programs reviewed",
+  "Network connectivity tested",
+  "Firewall enabled",
+  "Backup verified",
+  "User password policy checked"
+];
 
+const printerChecklistItems = [
+  "Printer exterior cleaned",
+  "Internal dust cleaned",
+  "Paper path cleaned",
+  "Pickup and feed rollers cleaned",
+  "Scanner glass cleaned",
+  "ADF glass cleaned",
+  "Toner / ink level checked",
+  "Drum unit condition checked",
+  "Fuser unit condition checked",
+  "Waste toner checked",
+  "Paper feed tested",
+  "No abnormal noise",
+  "Duplex unit tested",
+  "ADF tested",
+  "Test page printed",
+  "Print quality normal",
+  "Network connectivity tested",
+  "Printer IP reachable",
+  "Driver checked / updated",
+  "Power cable in good condition",
+  "Printer environment safe"
+];
+    
 let data = [];
 
 function fetchData(){
@@ -210,6 +252,7 @@ function renderTable(list){
 
 function viewItem(i){
     const item = data[i];
+
     mTech.textContent = item.technician || "-";
     mDept.textContent = item.department || "-";
     mAsset.textContent = item.asset || "-";
@@ -218,14 +261,26 @@ function viewItem(i){
 
     const list = document.getElementById("mChecklist");
     list.innerHTML = "";
-    (item.checklist || []).forEach(name=>{
+
+    // Auto-detect checklist type
+    const isPrinter = printerChecklistItems.some(c =>
+        (item.checklist || []).includes(c)
+    );
+
+    const masterList = isPrinter
+        ? printerChecklistItems
+        : computerChecklistItems;
+
+    masterList.forEach(name => {
         const div = document.createElement("div");
         div.className = "check-item";
-        div.textContent = "✅ " + name;
+        div.textContent = item.checklist?.includes(name)
+            ? `✅ ${name}`
+            : `❌ ${name}`;
         list.appendChild(div);
     });
 
-    modal.style.display="flex";
+    modal.style.display = "flex";
 }
 
 function closeModal(){ modal.style.display="none"; }
@@ -285,3 +340,4 @@ fetchData();
 
 </body>
 </html>
+
