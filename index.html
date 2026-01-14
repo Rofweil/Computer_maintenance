@@ -1,86 +1,81 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>IT Maintenance System</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="UTF-8">
+<title>IT PPM Checklist</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #f4f6f8;
-            margin: 0;
-            padding: 0;
-        }
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: #f4f6f8;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+    }
 
-        .container {
-            max-width: 600px;
-            margin: 80px auto;
-            background: #ffffff;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-            text-align: center;
-        }
+    .container {
+        background: #ffffff;
+        padding: 30px;
+        width: 100%;
+        max-width: 400px;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        text-align: center;
+    }
 
-        h1 {
-            margin-bottom: 20px;
-            color: #333;
-        }
+    h1 {
+        margin-bottom: 25px;
+        font-size: 22px;
+        color: #333;
+    }
 
-        .btn {
-            display: block;
-            width: 100%;
-            padding: 15px;
-            margin: 15px 0;
-            font-size: 16px;
-            font-weight: bold;
-            color: #fff;
-            background: #2563eb;
-            border: none;
-            border-radius: 6px;
-            text-decoration: none;
-            cursor: pointer;
-        }
+    a {
+        display: block;
+        text-decoration: none;
+        background: #2563eb;
+        color: white;
+        padding: 12px;
+        margin: 10px 0;
+        border-radius: 6px;
+        font-size: 16px;
+        transition: background 0.2s ease;
+    }
 
-        .btn:hover {
-            background: #1e40af;
-        }
+    a:hover {
+        background: #1e40af;
+    }
 
-        .btn-secondary {
-            background: #10b981;
-        }
+    .secondary {
+        background: #6b7280;
+    }
 
-        .btn-secondary:hover {
-            background: #059669;
-        }
-
-        .btn-view {
-            background: #6b7280;
-        }
-
-        .btn-view:hover {
-            background: #4b5563;
-        }
-    </style>
+    .secondary:hover {
+        background: #4b5563;
+    }
+</style>
 </head>
+
 <body>
 
-    <div class="container">
-        <h1>IT Maintenance Checklist</h1>
+<div class="container">
+    <h1>IT Preventive Maintenance</h1>
 
-        <a href="maintenance_form.html" class="btn">
-            🖥️ Computer Maintenance Checklist
-        </a>
+    <a href="maintenance_form.html">
+        Computer Maintenance Checklist
+    </a>
 
-        <a href="printer_maintenance_form.html" class="btn btn-secondary">
-            🖨️ Printer Maintenance Checklist
-        </a>
+    <a href="printer_maintenance.html">
+        Printer Maintenance Checklist
+    </a>
 
-        <a href="view_checklists.html" class="btn btn-view">
-            📋 View Maintenance Records
-        </a>
-    </div>
+    <a href="view_checklists.html" class="secondary">
+        View Saved Checklists
+    </a>
+</div>
 
 </body>
 </html>
