@@ -176,6 +176,7 @@ const db = firebase.database();
 const tableBody = document.getElementById("tableBody");
 const emptyMessage = document.getElementById("emptyMessage");
 const modal = document.getElementById("viewModal");
+    
 const computerChecklistItems = [
   "Clean keyboard & mouse",
   "Clean monitor screen",
@@ -250,7 +251,7 @@ function renderTable(list){
     });
 }
 
-function viewItem(i){
+function viewItem(i) {
     const item = data[i];
 
     mTech.textContent = item.technician || "-";
@@ -262,12 +263,11 @@ function viewItem(i){
     const list = document.getElementById("mChecklist");
     list.innerHTML = "";
 
-    // Auto-detect checklist type
-    const isPrinter = printerChecklistItems.some(c =>
-        (item.checklist || []).includes(c)
-    );
+    // Determine checklist type more accurately
+    const compMatches = computerChecklistItems.filter(c => item.checklist?.includes(c)).length;
+    const printerMatches = printerChecklistItems.filter(c => item.checklist?.includes(c)).length;
 
-    const masterList = isPrinter
+    const masterList = printerMatches > compMatches
         ? printerChecklistItems
         : computerChecklistItems;
 
@@ -439,6 +439,7 @@ fetchData();
 
 </body>
 </html>
+
 
 
 
