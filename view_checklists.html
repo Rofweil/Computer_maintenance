@@ -319,26 +319,126 @@ exportExcelBtn.onclick = ()=>{
     XLSX.writeFile(wb,"Maintenance_Report.xlsx");
 };
 
-exportPdfBtn.onclick = ()=>{
-    const list = getFiltered();
-    if(!list.length) return alert("No data.");
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
-    let y = 20;
-    list.forEach(d=>{
-        doc.text(`Asset: ${d.asset}`,10,y); y+=6;
-        doc.text(`Technician: ${d.technician}`,10,y); y+=6;
-        doc.text(`Checklist: ${(d.checklist||[]).join(", ")}`,10,y,{maxWidth:180});
-        y+=15;
-        if(y>270){ doc.addPage(); y=20; }
-    });
-    doc.save("Maintenance_Report.pdf");
-};
+exportPdfBtn.onclick = () => {
+    const filtered = getFiltered();
+    if (!filtered.length) {
+        alert("No data in this date range.");
+        return;
+    }
 
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF("p", "pt");
+
+    const margin = 40;
+    const pageWidth = doc.internal.pageSize.width;
+    const pageHeight = doc.internal.pageSize.height;
+
+    let y = margin;
+
+    filtered.forEach((item, index) => {
+
+        // Detect checklist type
+        const isPrinter = printerChecklistItems.some(c =>
+            (item.checklist || []).includes(c)
+        );
+        const masterList = isPrinter
+            ? printerChecklistItems
+            : computerChecklistItems;
+
+        // New page if needed
+        if (index > 0) {
+            doc.addPage();
+            y = margin;
+        }
+
+        /* ===== HEADER ===== */
+        doc.setFontSize(16);
+        doc.setTextColor(47, 128, 237);
+        doc.text(
+            isPrinter ? "Printer Maintenance Checklist" : "Computer Maintenance Checklist",
+            margin,
+            y
+        );
+        y += 25;
+
+        doc.setFontSize(12);
+        doc.setTextColor(0, 0, 0);
+        doc.text(`Technician: ${item.technician || "-"}`, margin, y); y += 15;
+        doc.text(`Department: ${item.department || "-"}`, margin, y); y += 15;
+        doc.text(`Asset Tag: ${item.asset || "-"}`, margin, y); y += 15;
+        doc.text(`Date: ${item.date || "-"}`, margin, y); y += 25;
+
+        /* ===== CHECKLIST TITLE ===== */
+        doc.setFontSize(13);
+        doc.setTextColor(47, 128, 237);
+        doc.text("Checklist", margin, y);
+        y += 15;
+
+        /* ===== CHECKLIST GRID ===== */
+        let x = margin;
+        const boxWidth = 220;
+        const boxHeight = 18;
+        const gapX = 10;
+        const gapY = 10;
+
+        masterList.forEach(name => {
+            const done = item.checklist?.includes(name);
+
+            doc.setDrawColor(0);
+            doc.setFillColor(
+                done ? 39 : 231,
+                done ? 174 : 76,
+                done ? 96 : 60
+            );
+
+            doc.rect(x, y, boxWidth, boxHeight, "FD");
+
+            doc.setFontSize(8);
+            doc.setTextColor(255, 255, 255);
+            doc.text(name, x + 4, y + 12, {
+                maxWidth: boxWidth - 8
+            });
+
+            x += boxWidth + gapX;
+
+            if (x + boxWidth > pageWidth - margin) {
+                x = margin;
+                y += boxHeight + gapY;
+            }
+
+            if (y + boxHeight + 60 > pageHeight) {
+                doc.addPage();
+                x = margin;
+                y = margin;
+            }
+        });
+
+        y += boxHeight + 25;
+
+        /* ===== REMARKS ===== */
+        doc.setFontSize(13);
+        doc.setTextColor(47, 128, 237);
+        doc.text("Remarks", margin, y);
+        y += 15;
+
+        doc.setFontSize(11);
+        doc.setTextColor(0, 0, 0);
+        const remarksText = doc.splitTextToSize(
+            item.remarks || "-",
+            pageWidth - margin * 2
+        );
+        doc.text(remarksText, margin, y);
+    });
+
+    const from = fromDate.value || "ALL";
+    const to = toDate.value || "ALL";
+    doc.save(`Maintenance_Report_${from}_${to}.pdf`);
+};
 fetchData();
 </script>
 
 </body>
 </html>
+
 
 
